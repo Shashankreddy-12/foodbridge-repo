@@ -1,5 +1,11 @@
 # 🌱 FoodBridge — Surplus Food Redistribution Platform
 
+## 🚀 Live Demo --
+
+- 🌐 Live Website: [Open App](https://foodbridge-repo.vercel.app/)
+- 🎥 Demo Video: [Watch Demo](https://drive.google.com/file/d/159p1NLFnUR6u8hQutSTz2tXVRxdQaN-z/view?usp=sharing)
+
+
 > Built for **Vashisht Hackathon 3.0** — EcoTech Innovation Track
 
 FoodBridge connects surplus food donors with recipients in real-time, using AI-powered safety scoring, smart matching, spoilage prediction, and multi-stop volunteer route batching.
@@ -120,3 +126,5 @@ FoodBridge/
 │   └── nlp_safety.py         NLP safety scorer
 └── docker-compose.yml
 ```
+
+
