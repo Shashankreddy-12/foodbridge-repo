@@ -16,9 +16,8 @@ export function useSocket(token) {
     socket.on('connect_error', (err) => console.error('Socket error:', err.message));
 
     socket.on('new_listing', (data) => {
-      // Depending on whether backend sends `data.listing` or just the `listing` object
-      const listing = data.listing || data; 
-      useNotificationStore.getState().add(listing);
+      const newListing = data.listing || data;
+      useNotificationStore.getState().add(newListing);
     });
 
     socket.on('urgent_listing', (data) => {
@@ -46,11 +45,7 @@ export function useSocket(token) {
 
     // Background AI mapping completion payload
     socket.on('listing_updated', (data) => {
-      useNotificationStore.getState().add({
-        ...data,
-        title: 'Safety Score Updated',
-        isUrgent: false,
-      });
+      useNotificationStore.getState().setListingUpdate(data);
     });
 
     // Volunteer gets notified of a nearby pickup request

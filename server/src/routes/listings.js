@@ -175,7 +175,7 @@ router.post('/:id/claim', verifyToken, async (req, res) => {
             { new: true }
         ).populate('donor', 'name');
 
-        if (!listing) return res.status(409).json({ error: 'Already claimed or unavailable' });
+        if (!listing) return res.status(409).json({ error: 'Already claimed' });
 
         await User.findByIdAndUpdate(req.user.id, { role: 'recipient' });
 

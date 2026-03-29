@@ -115,6 +115,18 @@ function Feed() {
   const [errorToast, setErrorToast]     = useState('');
   const [showProfile, setShowProfile]   = useState(false);
 
+  const listingUpdate = useNotificationStore(s => s.listingUpdate);
+
+  useEffect(() => {
+    if (listingUpdate) {
+      setListings(prev => prev.map(l => 
+        l._id === listingUpdate.listingId 
+          ? { ...l, safetyScore: listingUpdate.safetyScore }
+          : l
+      ));
+    }
+  }, [listingUpdate]);
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -150,18 +162,24 @@ function Feed() {
 
   useEffect(() => {
     if (!socket) return;
-    const handleNew = (listing) => {
-      setListings(prev => {
-        if (prev.find(l => l._id === listing._id)) return prev;
-        return [listing, ...prev];
-      });
+    const handleNew = (data) => {
+      const newListing = data.listing || data;
+      if (newListing.location?.coordinates) {
+        setListings(prev => {
+          const exists = prev.find(l => l._id === newListing._id);
+          if (exists) return prev;
+          return [...prev, newListing].sort(
+            (a,b) => new Date(a.expiresAt) - new Date(b.expiresAt)
+          );
+        });
+      }
     };
     const handleUpdated = (listing) => {
       setListings(prev => prev.map(l => l._id === listing._id ? { ...l, ...listing } : l));
       if (selected?._id === listing._id) setSelected(s => ({ ...s, ...listing }));
     };
     const handleClaimed = (data) => {
-      setListings(prev => prev.map(l => l._id === data.listingId ? { ...l, status: 'claimed' } : l));
+      setListings(prev => prev.filter(l => l._id !== data.listingId));
     };
     socket.on('new_listing', handleNew);
     socket.on('listing_updated', handleUpdated);

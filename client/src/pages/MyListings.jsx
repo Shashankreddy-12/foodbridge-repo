@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/store';
 import SafetyBadge from '../components/SafetyBadge';
 import StarRating from '../components/StarRating';
-import Navbar from '../components/Navbar';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import api from '../utils/api';
 
@@ -22,16 +21,16 @@ class ErrorBoundary extends React.Component {
 
 function StatusBadge({ status, urgent }) {
   if (urgent && status === 'available') {
-    return <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded-full animate-pulse border border-orange-200 uppercase">Urgent</span>;
+    return <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 animate-pulse border border-red-200 uppercase">Urgent</span>;
   }
   const colors = {
-    available: 'bg-green-100 text-green-800',
-    claimed: 'bg-blue-100 text-blue-800',
-    delivered: 'bg-purple-100 text-purple-800',
-    expired: 'bg-gray-100 text-gray-800'
+    available: 'bg-green-100 text-green-700',
+    claimed: 'bg-blue-100 text-blue-700',
+    delivered: 'bg-purple-100 text-purple-700',
+    expired: 'bg-gray-100 text-gray-500'
   };
-  const color = colors[status] || 'bg-gray-100 text-gray-800';
-  return <span className={`px-2 py-1 ${color} text-xs font-bold rounded-full capitalize`}>{status}</span>;
+  const color = colors[status] || 'bg-gray-100 text-gray-500';
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${color}`}>{status}</span>;
 }
 
 function SearchItemCard({ l, cancelClaim, user, ratingMode = null }) {
@@ -41,7 +40,7 @@ function SearchItemCard({ l, cancelClaim, user, ratingMode = null }) {
   if (typeof recipientId === 'object' && recipientId._id) recipientId = recipientId._id;
 
   return (
-    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow transition flex flex-col sm:flex-row justify-between sm:items-start mb-4">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all flex flex-col sm:flex-row justify-between sm:items-start mb-4">
       <div className="mb-4 sm:mb-0">
         <div className="flex items-center space-x-3 mb-2">
           <h3 className="font-bold text-gray-800 text-lg">{l.title}</h3>
@@ -161,51 +160,75 @@ export default function MyListings() {
   return (
     <ErrorBoundary>
     <>
-    <Navbar />
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4 relative pt-24 md:pt-28">
+    <div className="bg-gray-50 min-h-screen pt-24 px-6 flex flex-col items-center pb-20">
       {toast && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded shadow-lg z-[9999] text-white font-medium ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
           {toast.msg}
         </div>
       )}
 
-      <div className="w-full max-w-3xl border-b border-gray-200 pb-4 mb-6 flex justify-between items-center">
+      <div className="w-full max-w-3xl mb-6 flex justify-between items-center mt-4">
         <div>
-           <h1 className="text-3xl font-bold text-green-700">My Activity</h1>
-           <p className="text-gray-600 mt-1 text-sm">Your donations, claims and pickups</p>
+           <h1 className="text-3xl font-bold text-gray-900">My Activity</h1>
+           <p className="text-gray-500 mt-1 text-sm font-medium">Your donations, claims and pickups</p>
         </div>
-        <button onClick={() => navigate('/dashboard')} className="text-blue-600 hover:text-blue-800 text-sm font-medium">← Back to Dashboard</button>
+        <button onClick={() => navigate('/dashboard')} className="text-gray-500 hover:text-green-700 transition flex items-center text-sm font-bold gap-1 bg-white px-4 py-2 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50">← Back</button>
       </div>
 
       <div className="w-full max-w-3xl">
         {loading ? (
           <div className="space-y-4 w-full">
-             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm animate-pulse h-32"></div>
-             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm animate-pulse h-32"></div>
-             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm animate-pulse h-32"></div>
+             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm animate-pulse h-32"></div>
+             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm animate-pulse h-32"></div>
+             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm animate-pulse h-32"></div>
           </div>
         ) : isEmptyState ? (
-          <div className="text-center py-16 bg-white rounded-lg border border-gray-200 shadow-sm mt-4">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            <p className="text-lg text-gray-500 font-medium">Nothing here yet</p>
-            <p className="text-sm text-gray-400 mt-1">Check back later when you have activity.</p>
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm mt-4">
+            <span className="text-5xl mb-4 block">📋</span>
+            <p className="text-lg text-gray-800 font-bold mb-2">Nothing here yet</p>
+            <p className="text-sm text-gray-500 mb-6 font-medium mt-1">Get started by sharing or claiming food.</p>
+            <div className="flex justify-center flex-wrap gap-3">
+              <button onClick={() => navigate('/post-listing')} className="bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors">Post Food Now</button>
+              <button onClick={() => navigate('/feed')} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors">Browse Food</button>
+            </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="flex border-b border-gray-200 hide-scrollbar overflow-x-auto">
-               <button onClick={() => setActiveTab('donated')} className={`pb-3 px-4 font-bold text-sm transition-colors whitespace-nowrap outline-none ${activeTab === 'donated' ? 'border-b-2 border-green-600 text-green-700' : 'text-gray-500 hover:text-gray-700'}`}>🍱 Donated ({donated.length})</button>
-               <button onClick={() => setActiveTab('claimed')} className={`pb-3 px-4 font-bold text-sm transition-colors whitespace-nowrap outline-none ${activeTab === 'claimed' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}>🙏 Claimed ({claimed.length})</button>
-               <button onClick={() => setActiveTab('volunteer')} className={`pb-3 px-4 font-bold text-sm transition-colors whitespace-nowrap outline-none ${activeTab === 'volunteer' ? 'border-b-2 border-orange-600 text-orange-700' : 'text-gray-500 hover:text-gray-700'}`}>🚴 Deliveries ({volunteer.length})</button>
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl p-1 inline-flex gap-1 mb-6 shadow-sm border border-gray-100 w-full overflow-x-auto hide-scrollbar">
+               <button onClick={() => setActiveTab('donated')} className={`whitespace-nowrap outline-none transition-all ${activeTab === 'donated' ? 'bg-green-600 text-white rounded-xl px-5 py-2 text-sm font-semibold' : 'text-gray-500 px-5 py-2 text-sm font-medium hover:bg-gray-50 rounded-xl'}`}>🍱 Donated ({donated.length})</button>
+               <button onClick={() => setActiveTab('claimed')} className={`whitespace-nowrap outline-none transition-all ${activeTab === 'claimed' ? 'bg-green-600 text-white rounded-xl px-5 py-2 text-sm font-semibold' : 'text-gray-500 px-5 py-2 text-sm font-medium hover:bg-gray-50 rounded-xl'}`}>🙏 Claimed ({claimed.length})</button>
+               <button onClick={() => setActiveTab('volunteer')} className={`whitespace-nowrap outline-none transition-all ${activeTab === 'volunteer' ? 'bg-green-600 text-white rounded-xl px-5 py-2 text-sm font-semibold' : 'text-gray-500 px-5 py-2 text-sm font-medium hover:bg-gray-50 rounded-xl'}`}>🚴 Deliveries ({volunteer.length})</button>
             </div>
             
             <div className="space-y-4">
-               {activeTab === 'donated' && donated.length === 0 && <p className="text-gray-500 text-sm mt-4 italic text-center w-full py-6">No donations yet.</p>}
+               {activeTab === 'donated' && donated.length === 0 && (
+                 <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                   <span className="text-4xl block mb-3">🍱</span>
+                   <p className="text-gray-800 font-bold text-lg">No donations yet</p>
+                   <p className="text-sm text-gray-500 mb-5 font-medium mt-1">Share your surplus food with the community.</p>
+                   <button onClick={() => navigate('/post-listing')} className="bg-green-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-green-700">Post Food Now</button>
+                 </div>
+               )}
                {activeTab === 'donated' && donated.map(l => <SearchItemCard key={l._id} l={l} user={user} cancelClaim={confirmCancel} ratingMode="rate-recipient" />)}
                
-               {activeTab === 'claimed' && claimed.length === 0 && <p className="text-gray-500 text-sm mt-4 italic text-center w-full py-6">No claims yet.</p>}
+               {activeTab === 'claimed' && claimed.length === 0 && (
+                 <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                   <span className="text-4xl block mb-3">🙏</span>
+                   <p className="text-gray-800 font-bold text-lg">No claims yet</p>
+                   <p className="text-sm text-gray-500 mb-5 font-medium mt-1">Find meals available near you.</p>
+                   <button onClick={() => navigate('/feed')} className="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">Browse Food</button>
+                 </div>
+               )}
                {activeTab === 'claimed' && claimed.map(l => <SearchItemCard key={l._id} l={l} user={user} cancelClaim={confirmCancel} ratingMode="rate-donor" />)}
                
-               {activeTab === 'volunteer' && volunteer.length === 0 && <p className="text-gray-500 text-sm mt-4 italic text-center w-full py-6">No deliveries yet.</p>}
+               {activeTab === 'volunteer' && volunteer.length === 0 && (
+                 <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                   <span className="text-4xl block mb-3">🚴</span>
+                   <p className="text-gray-800 font-bold text-lg">No deliveries yet</p>
+                   <p className="text-sm text-gray-500 mb-5 font-medium mt-1">Help transport food safely to recipients.</p>
+                   <button onClick={() => navigate('/volunteer')} className="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-purple-700">View Pickups</button>
+                 </div>
+               )}
                {activeTab === 'volunteer' && volunteer.map(l => <SearchItemCard key={l._id} l={l} user={user} cancelClaim={confirmCancel} />)}
             </div>
           </div>

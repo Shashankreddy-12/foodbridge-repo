@@ -5,43 +5,7 @@ import { useAuthStore } from '../store/store';
 import { useNotificationStore } from '../store/notifications';
 import SafetyBadge from '../components/SafetyBadge';
 
-function NotificationBellInline() {
-  const { notifications } = useNotificationStore();
-  const unread = notifications ? notifications.length : 0;
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button onClick={() => setOpen(o => !o)} className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-        <span className="text-xl">🔔</span>
-        {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-            {unread > 9 ? '9+' : unread}
-          </span>
-        )}
-      </button>
-      {open && (
-        <div className="absolute right-0 top-11 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 text-sm">Notifications</span>
-            <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-xs">✕</button>
-          </div>
-          <div className="max-h-64 overflow-y-auto">
-            {unread === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-400 text-sm">🎉 All caught up!</div>
-            ) : (
-              notifications.map((n, i) => (
-                <div key={i} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50">
-                  <p className="text-sm text-gray-700">{n.message || n.text || JSON.stringify(n)}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{n.time || 'Just now'}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+
 
 export default function PostListing() {
     const [formData, setFormData] = useState({
@@ -201,7 +165,7 @@ export default function PostListing() {
     };
 
     return (
-      <div className="min-h-screen bg-[#fafaf7]">
+      <div className="bg-gray-50 min-h-screen pt-24 pb-12">
         <style>{`
           @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
@@ -212,96 +176,53 @@ export default function PostListing() {
           }
         `}</style>
         
-        {/* DASHBOARD NAVBAR FIX */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm h-16 flex items-center px-6 md:px-10">
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-2xl">🌿</span>
-            <span className="text-xl font-bold text-green-700 tracking-tight">Food<span className="text-gray-900">Bridge</span></span>
-          </Link>
-          <div className="hidden md:flex items-center gap-1 mx-auto">
-            {[
-              { label: 'Dashboard', path: '/dashboard' },
-              { label: 'Browse Food', path: '/feed' },
-              { label: 'Post Food', path: '/post-listing' },
-              { label: 'My Activity', path: '/my-listings' },
-              { label: 'Volunteer', path: '/volunteer' },
-            ].map(link => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  window.location.pathname === link.path
-                    ? 'text-green-700 bg-green-50'
-                    : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-3 ml-auto">
-            <NotificationBellInline />
-            <button
-              onClick={() => setShowProfile(true)}
-              className="w-9 h-9 rounded-full bg-green-600 text-white font-bold text-sm flex items-center justify-center hover:bg-green-700 transition-all shadow-sm flex-shrink-0"
-              title={user?.name}
-            >
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-            </button>
-            <button
-              onClick={() => { useAuthStore.getState().logout(); navigate('/login'); }}
-              className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50"
-            >
-              <span>↩</span> Logout
-            </button>
-          </div>
-        </nav>
-
-        <div className="max-w-2xl mx-auto px-4 py-10 mt-16">
-          <div className="text-center mb-8">
-            <span className="text-4xl">🍱</span>
-            <h1 className="text-3xl font-bold text-gray-900 mt-2">Share Surplus Food</h1>
-            <p className="text-gray-400 text-sm mt-1">Fill in the details — it takes less than 2 minutes</p>
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Post Surplus Food 🍱</h1>
+            <Link to="/feed" className="text-sm font-medium text-green-600 hover:text-green-700">← Back</Link>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-8 space-y-6">
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm mb-4">
-                ⚠️ {error}
-              </div>
-            )}
+          <div className="space-y-6">
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Food Name *</label>
-                <input type="text" name="title" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" placeholder="e.g. Chicken Biryani, Fresh Vegetables..." onChange={handleChange} required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Food Name *</label>
+                <input type="text" name="title" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" placeholder="e.g. Chicken Biryani, Fresh Vegetables..." onChange={handleChange} required />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Food Type *</label>
-                  <select name="foodType" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900 bg-white" onChange={handleChange} value={formData.foodType}>
-                    <option value="cooked">🍛 Cooked</option>
-                    <option value="raw">🥦 Raw</option>
-                    <option value="packaged">📦 Packaged</option>
-                    <option value="bakery">🍞 Baked</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Food Type *</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['cooked', 'raw', 'packaged', 'bakery'].map(type => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, foodType: type })}
+                        className={formData.foodType === type 
+                          ? 'bg-green-600 text-white rounded-full px-4 py-1.5 text-sm' 
+                          : 'border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50'
+                        }
+                      >
+                        {type === 'cooked' ? '🍛 Cooked' : type === 'raw' ? '🥦 Raw' : type === 'packaged' ? '📦 Packaged' : '🍞 Baked'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Quantity *</label>
-                  <input type="text" name="quantity" placeholder="e.g. 5kg or 20 meals" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" onChange={handleChange} required />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                  <input type="text" name="quantity" placeholder="e.g. 5kg or 20 meals" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" onChange={handleChange} required />
                 </div>
               </div>
 
               <div>
-                 <label className="block text-sm font-semibold text-gray-700 mb-1">Best Before *</label>
-                 <input type="datetime-local" name="expiresAt" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" onChange={handleChange} required />
+                 <label className="block text-sm font-medium text-gray-700 mb-1">Best Before *</label>
+                 <input type="datetime-local" name="expiresAt" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" onChange={handleChange} required />
               </div>
 
               <div>
-                 <label className="block text-sm font-semibold text-gray-700 mb-1">Pickup Address *</label>
-                 <input type="text" name="address" placeholder="Street address, area, city" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" onChange={handleChange} value={formData.address || ''} required />
+                 <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Address *</label>
+                 <input type="text" name="address" placeholder="Street address, area, city" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" onChange={handleChange} value={formData.address || ''} required />
                  {autoFilled ? (
                    <span className="text-xs text-green-600 mt-1 flex items-center gap-1">✓ GPS location captured</span>
                  ) : (
@@ -310,7 +231,7 @@ export default function PostListing() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">📸 Food Photo * (required)</label>
+                <label className="block text-sm font-medium text-gray-700">📸 Food Photo * (required)</label>
                 <div className="flex gap-3 flex-wrap">
                   <label className="flex items-center gap-2 cursor-pointer bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-all">
                     📷 Take Photo
@@ -344,10 +265,10 @@ export default function PostListing() {
 
               <div>
                  <div className="flex justify-between items-end mb-1">
-                   <label className="block text-sm font-semibold text-gray-700">Food Condition *</label>
+                   <label className="block text-sm font-medium text-gray-700">Food Condition *</label>
                  </div>
                  <div className="flex flex-col gap-2">
-                   <textarea name="condition" rows="3" placeholder="Describe freshness, packaging, any relevant details..." className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" onChange={handleChange} required></textarea>
+                   <textarea name="condition" rows="3" placeholder="Describe freshness, packaging, any relevant details..." className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" onChange={handleChange} required></textarea>
                    
                    <div className="flex justify-end">
                      <button type="button" disabled={checkingSafety} onClick={handleSafetyCheck} 
@@ -375,12 +296,12 @@ export default function PostListing() {
 
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Hours Since Cooked</label>
-                  <input type="number" name="hoursSinceCooked" placeholder="e.g. 2" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900" onChange={handleChange} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hours Since Cooked</label>
+                  <input type="number" name="hoursSinceCooked" placeholder="e.g. 2" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900" onChange={handleChange} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Storage Method</label>
-                  <select name="storageMethod" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-gray-900 bg-white" onChange={handleChange}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Storage Method</label>
+                  <select name="storageMethod" className="w-full border border-gray-200 rounded-xl h-11 px-4 focus:ring-2 ring-green-500 border-transparent outline-none text-gray-900 bg-white" onChange={handleChange}>
                     <option value="Fridge">Fridge</option>
                     <option value="Freezer">Freezer</option>
                     <option value="Room Temperature">Room Temperature</option>
@@ -390,10 +311,15 @@ export default function PostListing() {
               </div>
 
               <div className="pt-4">
+                 {error && (
+                   <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm mb-4">
+                     ⚠️ {error}
+                   </div>
+                 )}
                  <button type="submit" disabled={submitting || safetyPrecheck?.blocked || images.length === 0} 
-                   className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl text-lg hover:bg-green-700 disabled:bg-green-400 transition-all shadow-md flex items-center justify-center gap-2">
+                   className="w-full bg-green-600 text-white rounded-xl h-12 font-semibold hover:bg-green-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
                    {submitting && <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
-                   {submitting ? 'Posting...' : '🚀 Post Food Listing'}
+                   {submitting ? 'Posting...' : '🚀 Post Food'}
                  </button>
                  <p className="text-xs text-center text-gray-400 mt-3">Your listing goes live instantly and nearby recipients are notified</p>
               </div>
@@ -401,30 +327,6 @@ export default function PostListing() {
             </form>
           </div>
         </div>
-
-        {showProfile && (
-          <div className="fixed inset-0 z-[100] flex">
-            <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={() => setShowProfile(false)} />
-            <div className="w-80 bg-white h-full shadow-2xl flex flex-col animate-slideInRight">
-              <div className="bg-green-700 px-6 py-8 text-white">
-                <button onClick={() => setShowProfile(false)} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl">✕</button>
-                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold mb-3">{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>
-                <h2 className="text-xl font-bold">{user?.name || 'User'}</h2>
-                <p className="text-green-200 text-sm mt-0.5">{user?.email || ''}</p>
-                <span className="mt-2 inline-block bg-white/20 text-white text-xs px-3 py-1 rounded-full capitalize">{user?.role || 'member'}</span>
-              </div>
-              <div className="flex-1 px-6 py-5 space-y-3 overflow-y-auto">
-                <div className="pt-4 space-y-2">
-                  <Link to="/my-listings" onClick={() => setShowProfile(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-green-700 font-medium text-sm transition-colors">📋 My Activity</Link>
-                  <Link to="/volunteer" onClick={() => setShowProfile(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-green-700 font-medium text-sm transition-colors">🚴 Volunteer</Link>
-                </div>
-              </div>
-              <div className="px-6 py-4 border-t border-gray-100">
-                <button onClick={() => { useAuthStore.getState().logout(); navigate('/login'); }} className="w-full bg-red-50 text-red-600 font-semibold py-2.5 rounded-xl hover:bg-red-100 transition-colors text-sm">↩ Sign Out</button>
-              </div>
-            </div>
-          </div>
-        )}
 
       </div>
     );

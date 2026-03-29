@@ -3,7 +3,7 @@ import FoodListing from '../models/FoodListing.js';
 import User from '../models/User.js';
 import { verifyToken } from '../middleware/auth.js';
 import { optimizeVolunteerRoute } from '../services/routeOptimizer.js';
-import { recordImpact } from '../models/ImpactStats.js';
+import { ImpactStats, recordImpact } from '../models/ImpactStats.js';
 
 const router = Router();
 

@@ -6,6 +6,8 @@ export const useNotificationStore = create((set, get) => ({
   impactStats: null,
   setImpactStats: (data) => set({ impactStats: data }),
   setVolunteerLocation: (data) => set({ volunteerLocation: data }),
+  listingUpdate: null,
+  setListingUpdate: (data) => set({ listingUpdate: data }),
   add: (listing) => set((state) => ({
     notifications: [{ ...listing, isUrgent: false, seenAt: Date.now() }, ...state.notifications]
   })),
