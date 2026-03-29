@@ -39,8 +39,9 @@ export default function Login() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-green-900/40 rounded-full blur-2xl point-events-none"></div>
 
         <div className="relative z-10">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-white text-2xl font-bold hover:opacity-80 transition cursor-pointer">
-            🌱 FoodBridge
+          <button onClick={() => navigate('/')} className="flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer">
+             <span className="text-2xl">🌿</span>
+             <span className="text-2xl font-bold tracking-tight text-white">Food<span className="text-green-300">Bridge</span></span>
           </button>
         </div>
 
@@ -76,8 +77,9 @@ export default function Login() {
           
           {/* Mobile Logo */}
           <div className="md:hidden flex flex-col items-start mb-8">
-             <button onClick={() => navigate('/')} className="text-[#16a34a] text-xl font-bold flex items-center gap-2 mb-4">
-               🌱 FoodBridge
+             <button onClick={() => navigate('/')} className="flex items-center gap-1.5 mb-4">
+               <span className="text-2xl">🌿</span>
+               <span className="text-xl font-bold text-green-700 tracking-tight">Food<span className="text-gray-900">Bridge</span></span>
              </button>
              <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 font-bold text-sm bg-white border border-gray-200 shadow-sm px-4 py-2.5 rounded-full hover:bg-gray-50 hover:text-gray-900 hover:shadow-md transition-all">
                ← Back to home

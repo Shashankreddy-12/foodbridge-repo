@@ -4,6 +4,8 @@ import { useAuthStore } from '../store/store';
 import SafetyBadge from '../components/SafetyBadge';
 import StarRating from '../components/StarRating';
 import ConfirmationDialog from '../components/ConfirmationDialog';
+import { useNotificationStore } from '../store/notifications';
+
 import api from '../utils/api';
 
 class ErrorBoundary extends React.Component {
@@ -36,8 +38,8 @@ function StatusBadge({ status, urgent }) {
 function SearchItemCard({ l, cancelClaim, user, ratingMode = null }) {
   let donorId = l.donor?._id || l.donor;
   let recipientId = l.claimedBy?._id || l.claimedBy;
-  if (typeof donorId === 'object' && donorId._id) donorId = donorId._id;
-  if (typeof recipientId === 'object' && recipientId._id) recipientId = recipientId._id;
+  if (donorId && typeof donorId === 'object' && donorId._id) donorId = donorId._id;
+  if (recipientId && typeof recipientId === 'object' && recipientId._id) recipientId = recipientId._id;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all flex flex-col sm:flex-row justify-between sm:items-start mb-4">
@@ -91,11 +93,7 @@ export default function MyListings() {
   const user = useAuthStore(s => s.user);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+  const fetchData = () => {
     setLoading(true);
     api.get('/api/listings/my', {
       headers: { Authorization: `Bearer ${token}` }
@@ -110,7 +108,26 @@ export default function MyListings() {
         console.error(err);
     })
     .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchData();
   }, [token, navigate]);
+
+  // Listen for real-time socket events via the notification store
+  useEffect(() => {
+    const unsub = useNotificationStore.subscribe(
+      (state) => state.notifications,
+      () => {
+        fetchData(); // re-fetch on any new notification
+      }
+    );
+    return () => unsub();
+  }, [token]);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -160,6 +177,7 @@ export default function MyListings() {
   return (
     <ErrorBoundary>
     <>
+
     <div className="bg-gray-50 min-h-screen pt-24 px-6 flex flex-col items-center pb-20">
       {toast && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded shadow-lg z-[9999] text-white font-medium ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>

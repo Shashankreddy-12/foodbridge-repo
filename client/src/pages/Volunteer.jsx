@@ -8,7 +8,7 @@ import { useSocket } from '../hooks/useSocket';
 import SafetyBadge from '../components/SafetyBadge';
 import StarRating from '../components/StarRating';
 import { io } from 'socket.io-client';
-import Navbar from '../components/Navbar';
+
 
 const volunteerIcon = new L.divIcon({ 
     className: 'volunteer-icon', 
@@ -81,12 +81,15 @@ export default function Volunteer() {
     const fetchData = async () => {
         try {
             const pRes = await api.get('/api/volunteer/pickups', { headers: { Authorization: `Bearer ${token}` } });
-            setPickups(pRes.data);
+            const pickupData = pRes.data?.listings || pRes.data || [];
+            if (Array.isArray(pickupData)) setPickups(pickupData);
+
             const dRes = await api.get('/api/volunteer/my-deliveries', { headers: { Authorization: `Bearer ${token}` } });
-            setDeliveries(dRes.data);
+            const deliveryData = dRes.data?.listings || dRes.data || [];
+            if (Array.isArray(deliveryData)) setDeliveries(deliveryData);
 
             const travelState = {};
-            pRes.data.forEach(p => travelState[p._id] = '2-wheeler');
+            (Array.isArray(pickupData) ? pickupData : []).forEach(p => travelState[p._id] = '2-wheeler');
             setTravelModes(travelState);
         } catch (err) {
             console.error('Fetch error:', err);
@@ -99,6 +102,20 @@ export default function Volunteer() {
         if (token && userLoc) fetchData();
         else if (locError) setLoading(false);
     }, [token, userLoc, locError]);
+
+    useEffect(() => {
+        if (!socket) return;
+        const handlePickupRequest = (data) => {
+            const newListing = data.listing || data;
+            setPickups(prev => {
+                const exists = prev.find(p => p._id === newListing._id);
+                if (exists) return prev;
+                return [newListing, ...prev];
+            });
+        };
+        socket.on('pickup_request', handlePickupRequest);
+        return () => socket.off('pickup_request', handlePickupRequest);
+    }, [socket]);
 
     const activeDelivery = deliveries.find(d => d.status === 'claimed');
 
@@ -145,8 +162,6 @@ export default function Volunteer() {
                 setActiveListing(newListing);
                 showToast("Pickup Accepted. Route unavailable.");
             }
-            
-            fetchData(); 
         } catch (err) {
             if (err.response?.status === 409) {
                 showToast("Already taken by another volunteer");
@@ -179,7 +194,7 @@ export default function Volunteer() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col pt-24 md:pt-24 pb-12 px-4 sm:px-6 relative">
-            <Navbar />
+
             {toast && (
                 <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-xl shadow-2xl z-[99999] font-medium text-sm">
                     {toast}

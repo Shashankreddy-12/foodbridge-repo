@@ -132,8 +132,9 @@ export default function Home() {
         isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-[#16a34a]">🌱 FoodBridge</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-2xl">🌿</span>
+            <span className="text-xl font-bold text-green-700 tracking-tight">Food<span className="text-gray-900">Bridge</span></span>
           </div>
 
           <div className={`hidden md:flex space-x-8 font-medium text-sm transition-colors ${

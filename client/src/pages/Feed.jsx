@@ -34,43 +34,7 @@ const greenIcon  = createColorIcon('#16a34a');
 const orangeIcon = createColorIcon('#f59e0b');
 const redIcon    = createColorIcon('#dc2626');
 
-function NotificationBellInline() {
-  const { notifications } = useNotificationStore();
-  const unread = notifications ? notifications.length : 0;
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button onClick={() => setOpen(o => !o)} className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-        <span className="text-xl">🔔</span>
-        {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-            {unread > 9 ? '9+' : unread}
-          </span>
-        )}
-      </button>
-      {open && (
-        <div className="absolute right-0 top-11 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 text-sm">Notifications</span>
-            <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-xs">✕</button>
-          </div>
-          <div className="max-h-64 overflow-y-auto">
-            {unread === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-400 text-sm">🎉 All caught up!</div>
-            ) : (
-              notifications.map((n, i) => (
-                <div key={i} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50">
-                  <p className="text-sm text-gray-700">{n.message || n.text || JSON.stringify(n)}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{n.time || 'Just now'}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -181,10 +145,12 @@ function Feed() {
     const handleClaimed = (data) => {
       setListings(prev => prev.filter(l => l._id !== data.listingId));
     };
+    socket.on('feed_update', handleNew);
     socket.on('new_listing', handleNew);
     socket.on('listing_updated', handleUpdated);
     socket.on('listing_claimed', handleClaimed);
     return () => {
+      socket.off('feed_update', handleNew);
       socket.off('new_listing', handleNew);
       socket.off('listing_updated', handleUpdated);
       socket.off('listing_claimed', handleClaimed);
@@ -258,49 +224,6 @@ function Feed() {
         .leaflet-control { z-index: 2; }
       `}</style>
 
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm h-16 flex items-center px-6 md:px-10">
-        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-2xl">🌿</span>
-          <span className="text-xl font-bold text-green-700 tracking-tight">Food<span className="text-gray-900">Bridge</span></span>
-        </Link>
-        <div className="hidden md:flex items-center gap-1 mx-auto">
-          {[
-            { label: 'Dashboard', path: '/dashboard' },
-            { label: 'Browse Food', path: '/feed' },
-            { label: 'Post Food', path: '/post-listing' },
-            { label: 'My Activity', path: '/my-listings' },
-            { label: 'Volunteer', path: '/volunteer' },
-          ].map(link => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                window.location.pathname === link.path
-                  ? 'text-green-700 bg-green-50'
-                  : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-        <div className="flex items-center gap-3 ml-auto">
-          <NotificationBellInline />
-          <button
-            onClick={() => setShowProfile(true)}
-            className="w-9 h-9 rounded-full bg-green-600 text-white font-bold text-sm flex items-center justify-center hover:bg-green-700 transition-all shadow-sm flex-shrink-0"
-            title={user?.name}
-          >
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-          </button>
-          <button
-            onClick={() => { useAuthStore.getState().logout(); navigate('/login'); }}
-            className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50"
-          >
-            <span>↩</span> Logout
-          </button>
-        </div>
-      </nav>
 
       <div className="flex flex-col flex-1 mt-16">
         <div className="bg-white border-b border-gray-100 px-6 md:px-10 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -546,34 +469,7 @@ function Feed() {
         </div>
       )}
       
-      {showProfile && (
-        <div className="fixed inset-0 z-[100] flex">
-          <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={() => setShowProfile(false)} />
-          <div className="w-80 bg-white h-full shadow-2xl flex flex-col animate-slideInRight">
-            <div className="bg-green-700 px-6 py-8 text-white">
-              <button onClick={() => setShowProfile(false)} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl">✕</button>
-              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold mb-3">{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>
-              <h2 className="text-xl font-bold">{user?.name || 'User'}</h2>
-              <p className="text-green-200 text-sm mt-0.5">{user?.email || ''}</p>
-              <span className="mt-2 inline-block bg-white/20 text-white text-xs px-3 py-1 rounded-full capitalize">{user?.role || 'member'}</span>
-            </div>
-            <div className="flex-1 px-6 py-5 space-y-3 overflow-y-auto">
-              {/* Note: Feed.jsx doesn't have myListings state naturally, but it wasn't requested in Feed instructions Section 2.
-                  Wait, the User's Feed instruction for Navbar "same as Dashboard.jsx ... same Avatar button".
-                  But in Dashboard profile, it mapped stats `myListings.donated.length`. 
-                  Since I must only copy what was in Section 1/2/3/4/X, I will replace that with a generic link or rely on the fact they didn't supply it.
-                  Let me remove the stat mapping since it'll crash without `myListings` which is missing from Section 2. */}
-              <div className="pt-4 space-y-2">
-                <Link to="/my-listings" onClick={() => setShowProfile(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-green-700 font-medium text-sm transition-colors">📋 My Activity</Link>
-                <Link to="/volunteer" onClick={() => setShowProfile(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-green-700 font-medium text-sm transition-colors">🚴 Volunteer</Link>
-              </div>
-            </div>
-            <div className="px-6 py-4 border-t border-gray-100">
-              <button onClick={() => { useAuthStore.getState().logout(); navigate('/login'); }} className="w-full bg-red-50 text-red-600 font-semibold py-2.5 rounded-xl hover:bg-red-100 transition-colors text-sm">↩ Sign Out</button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {errorToast && (
         <div className="fixed top-20 right-4 z-[9999] bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm shadow-md">

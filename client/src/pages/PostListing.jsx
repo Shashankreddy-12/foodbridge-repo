@@ -6,7 +6,6 @@ import { useNotificationStore } from '../store/notifications';
 import SafetyBadge from '../components/SafetyBadge';
 
 
-
 export default function PostListing() {
     const [formData, setFormData] = useState({
         title: '',
@@ -166,6 +165,7 @@ export default function PostListing() {
 
     return (
       <div className="bg-gray-50 min-h-screen pt-24 pb-12">
+
         <style>{`
           @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }

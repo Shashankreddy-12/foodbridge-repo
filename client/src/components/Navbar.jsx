@@ -33,21 +33,25 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm z-[99000] px-4 sm:px-6 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-[50] bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm h-16 flex items-center px-4 md:px-10">
         
-        {/* Left Side: Logo */}
-        <Link to="/dashboard" className="flex items-center space-x-2 shrink-0 hover:opacity-80 transition">
-          <span className="text-2xl font-black text-green-600 tracking-tight">🌱 FoodBridge</span>
+        {/* LEFT — Branding */}
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-2xl">🌿</span>
+          <span className="text-xl font-bold text-green-700 tracking-tight">Food<span className="text-gray-900">Bridge</span></span>
         </Link>
         
-        {/* Center: Desktop Links */}
-        <div className="hidden md:flex space-x-6">
+        {/* CENTER — Nav Links (hidden on mobile) */}
+        <div className="hidden md:flex items-center gap-1 mx-auto">
           {navLinks.map(link => (
-            <Link 
-              key={link.path} 
+            <Link
+              key={link.path}
               to={link.path}
-              className={`text-sm font-bold transition flex items-center ${isActive(link.path) ? 'text-green-600 border-b-2 border-green-600 pt-1' : 'text-gray-500 hover:text-gray-800'}`}
-              style={isActive(link.path) ? { marginBottom: '-2px' } : {}}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive(link.path)
+                  ? 'text-green-700 bg-green-50'
+                  : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
+              }`}
             >
               {link.name}
             </Link>
@@ -55,21 +59,24 @@ export default function Navbar() {
         </div>
 
         {/* Right Side: Icons */}
-        <div className="flex items-center space-x-3 sm:space-x-5 shrink-0">
+        <div className="flex items-center gap-3 ml-auto">
           <NotificationBell />
 
-          <button 
-            onClick={handleLogout}
-            className="hidden sm:block text-xs font-bold text-red-500 hover:text-red-700 transition"
-          >
-            Logout
-          </button>
-          
-          <button 
+          {/* Profile Avatar Button */}
+          <button
             onClick={() => setProfileOpen(true)}
-            className="w-10 h-10 bg-green-100 text-green-700 font-extrabold text-lg flex items-center justify-center rounded-full border border-green-200 shadow-sm hover:shadow hover:-translate-y-0.5 transition transform cursor-pointer"
+            className="w-9 h-9 rounded-full bg-green-600 text-white font-bold text-sm flex items-center justify-center hover:bg-green-700 transition-all shadow-sm flex-shrink-0 cursor-pointer"
+            title={user?.name}
           >
-            {user.name.charAt(0).toUpperCase()}
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          </button>
+
+          {/* Logout (Desktop) */}
+          <button
+            onClick={handleLogout}
+            className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50"
+          >
+            <span>↩</span> Logout
           </button>
 
           {/* Mobile Hamburger Toggle */}

@@ -23,7 +23,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuthStore } from '../store/store';
-import Navbar from '../components/Navbar';
+
 
 // ─── Status badge colours ─────────────────────────────────────
 const STATUS_STYLE = {
@@ -196,7 +196,7 @@ export default function RouteBatch() {
   if (user?.role !== 'volunteer') {
     return (
       <>
-        <Navbar />
+
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
           <p className="text-gray-500">Batch routing is available for volunteers only.</p>
           <Link to="/" className="mt-4 text-green-600 underline">Go home</Link>
@@ -207,7 +207,7 @@ export default function RouteBatch() {
 
   return (
     <>
-      <Navbar />
+
       <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Header */}

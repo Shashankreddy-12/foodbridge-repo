@@ -14,11 +14,13 @@ import Volunteer from './pages/Volunteer';
 import RouteBatch from './pages/RouteBatch';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
