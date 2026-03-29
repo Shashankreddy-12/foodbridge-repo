@@ -136,43 +136,65 @@ router.post('/complete/:listingId', verifyToken, async (req, res) => {
 // GET /api/volunteer/pickups
 router.get('/pickups', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user.location || user.location.coordinates.length !== 2) {
-      return res.json([]);
-    }
-
-    const { coordinates } = user.location;
-    const pickups = await FoodListing.find({
+    const volunteerUser = await User.findById(req.user.id);
+    
+    // Build query — find claimed listings with no volunteer assigned
+    let query = {
       status: 'claimed',
       volunteer: null,
-      location: {
-        $near: {
-          $geometry: { type: 'Point', coordinates },
-          $maxDistance: 10000
-        }
-      }
-    })
-    .populate('donor', 'name phone orgName')
-    .populate('claimedBy', 'name phone')
-    .sort({ expiresAt: 1 });
+    };
 
-    return res.json(pickups);
+    // Only add location filter if volunteer has saved coordinates
+    if (
+      volunteerUser?.location?.coordinates?.length === 2 &&
+      volunteerUser.location.coordinates[0] !== 0
+    ) {
+      query.location = {
+        $near: {
+          $geometry: volunteerUser.location,
+          $maxDistance: 10000,
+        },
+      };
+    }
+    // If no location: return ALL claimed listings with no volunteer
+    // so volunteer can still see and accept pickups
+
+    const listings = await FoodListing.find(query)
+      .populate('donor', 'name phone orgName')
+      .populate('claimedBy', 'name phone')
+      .sort({ expiresAt: 1 })
+      .limit(20);
+
+    return res.json({ listings });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('GET /pickups error:', err.message);
+    // If $near fails (no index), fallback without location filter
+    try {
+      const listings = await FoodListing.find({
+        status: 'claimed',
+        volunteer: null,
+      })
+        .populate('donor', 'name phone orgName')
+        .populate('claimedBy', 'name phone')
+        .sort({ expiresAt: 1 })
+        .limit(20);
+      return res.json({ listings });
+    } catch (err2) {
+      return res.status(500).json({ error: err2.message });
+    }
   }
 });
 
 // GET /api/volunteer/my-deliveries
 router.get('/my-deliveries', verifyToken, async (req, res) => {
   try {
-    const deliveries = await FoodListing.find({
-      volunteer: req.user.id
+    const listings = await FoodListing.find({ 
+      volunteer: req.user.id 
     })
-    .populate('donor', 'name phone')
-    .populate('claimedBy', 'name phone')
-    .sort({ createdAt: -1 });
-
-    return res.json(deliveries);
+      .populate('donor', 'name phone orgName')
+      .populate('claimedBy', 'name phone')
+      .sort({ updatedAt: -1 });
+    return res.json({ listings });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

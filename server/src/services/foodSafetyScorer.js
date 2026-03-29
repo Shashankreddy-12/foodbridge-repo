@@ -105,6 +105,10 @@ function deterministicPreScore(input) {
 //  GEMINI SAFETY SCORER
 // ─────────────────────────────────────────────────────────────
 async function geminiSafetyScore(input) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'undefined' || GEMINI_API_KEY === 'your_google_gemini_api_key_here') {
+    throw new Error('Valid Gemini API Key not configured');
+  }
+
   const {
     description,
     foodCategory,
@@ -214,7 +218,7 @@ async function scoreFoodSafety(input) {
   try {
     return await geminiSafetyScore(input);
   } catch (err) {
-    console.error("Gemini safety scorer failed, using cautious fallback:", err.message);
+    console.error("⚠️ AI Safey Scorer Offline:", err.message, "— Using fallback.");
 
     // Graceful fallback — never let the scorer crash the listing flow
     // Default to Caution so recipient is warned but donor isn't blocked

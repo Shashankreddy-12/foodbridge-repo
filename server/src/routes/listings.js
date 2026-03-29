@@ -14,10 +14,23 @@ router.post('/', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Address and condition are required' });
     }
 
+    const user = await User.findById(req.user.id);
+    let coords = [parseFloat(req.body.lng) || 0, parseFloat(req.body.lat) || 0];
+    
+    // If frontend didn't supply coordinates, fallback to user's saved home coords
+    if (coords[0] === 0 && coords[1] === 0 && user.location?.coordinates?.length === 2) {
+       coords = user.location.coordinates;
+    }
+    
+    // Final generic fallback for MVP testing (Chennai coordinates) so listings don't disappear into the Atlantic ocean
+    if (coords[0] === 0 && coords[1] === 0) {
+       coords = [80.2707, 13.0827];
+    }
+
     const listing = await FoodListing.create({
       ...req.body,
       donor: req.user.id,
-      location: { type: 'Point', coordinates: [req.body.lng, req.body.lat] }
+      location: { type: 'Point', coordinates: coords }
     });
 
     // Update donor role
@@ -36,6 +49,13 @@ router.post('/', verifyToken, async (req, res) => {
 
         const io = req.app.get('io');
         
+        // Broadcast the new listing to ALL users so the Feed updates instantly globally
+        if (io) {
+            io.emit('feed_update', {
+               listing: { ...listing.toObject(), safetyScore: safetyResult.score }
+            });
+        }
+
         // Step 2: Find nearby recipients for matching
         const nearbyRecipients = await User.find({
           role: 'recipient',
@@ -181,16 +201,14 @@ router.post('/:id/claim', verifyToken, async (req, res) => {
 
         const io = req.app.get('io');
         if (io) {
+            // Personal notification to donor
             io.to(`user_${listing.donor._id}`).emit('listing_claimed', { listingId: listing._id, claimedBy: req.user.id });
 
-            const volunteers = await User.find({ 
-                role: 'volunteer', 
-                location: { $near: { $geometry: listing.location, $maxDistance: 5000 } } 
-            }).limit(5);
+            // Global broadcast so Browse Food map clears out claimed items live
+            io.emit('listing_claimed', { listingId: listing._id, claimedBy: req.user.id });
 
-            volunteers.forEach(v => {
-                io.to(`user_${v._id}`).emit('pickup_request', { listing });
-            });
+            // Global broadcast so Volunteer Pickup Dashboard updates instantly for everyone testing
+            io.emit('pickup_request', { listing });
         }
 
         res.json(listing);
